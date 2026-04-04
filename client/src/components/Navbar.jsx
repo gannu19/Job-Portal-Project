@@ -7,6 +7,13 @@ const Navbar = () =>{
 
     const {openSignIn} = useClerk();
     const {user} = useUser();
+    const displayName =
+        [user?.firstName, user?.lastName].filter(Boolean).join(' ') ||
+        user?.fullName ||
+        user?.username ||
+        user?.primaryEmailAddress?.emailAddress?.split('@')[0] ||
+        'there';
+
     return (
         <div className ='shadow py-4'>
             <div className = ' container px-4 2xl:px-20 mx-auto flex justify-between items-center'>
@@ -16,7 +23,7 @@ const Navbar = () =>{
                     ?<div className='flex items-center gap-2'>
                         <Link to= {'/Applications'}>Applied Jobs |</Link>
                         <p></p>
-                        <p>Hi, {user.firstName+" "+user.lastName}</p>
+                        <p>Hi, {displayName}</p>
                         <UserButton />
                     </div>
                     :<div className = 'flex gap-4 max-sm:text-xs'>
