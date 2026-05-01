@@ -1,7 +1,7 @@
 import React from 'react';
 import { assets } from '../assets/assets';
 import { useClerk, UserButton, useUser} from '@clerk/react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 
 const Navbar = () =>{
 
@@ -21,9 +21,9 @@ const Navbar = () =>{
                 {
                     user
                     ?<div className='flex items-center gap-2'>
-                        <Link to= {'/Applications'}>Applied Jobs |</Link>
+                        <Link to='/applications'>Applied Jobs |</Link>
                         <p></p>
-                        <p>Hi, {displayName}</p>
+                        <p className='max-sm:hidden'>Hi, {displayName}</p>
                         <UserButton />
                     </div>
                     :<div className = 'flex gap-4 max-sm:text-xs'>

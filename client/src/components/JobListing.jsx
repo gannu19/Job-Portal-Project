@@ -1,12 +1,17 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { AppContext } from '../context/AppContext';
-import { assets, JobCategories, JobLocations, jobsData } from '../assets/assets';
+import { assets, JobCategories, JobLocations } from '../assets/assets';
 import JobCard from './JobCard.jsx';
 
 
 const JobListing =()=>{
 
-    const {isSearched, searchFilter,setSearchFilter} = useContext(AppContext);
+    const {isSearched, searchFilter,setSearchFilter, jobs} = useContext(AppContext);
+    const [showFilter, setShowFilter] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
+    const jobsPerPage = 6; // Adjust as needed
+    const totalPages = Math.ceil(jobs.length / jobsPerPage);
+    const displayJobs = jobs.slice((currentPage - 1) * jobsPerPage, currentPage * jobsPerPage);
     return (
         <div className='container 2xl:px-20 mx-auto flex flex-col lg:flex-row max-lg:space-y-8 py-8'>
             {/*side bar*/}
@@ -16,17 +21,17 @@ const JobListing =()=>{
                 {
                     isSearched && (searchFilter.title !== "" || searchFilter.location !=="")&&(
                         <>
-                        <h3 className='font-mdeium text-lg mb-4'>Current Search</h3>
+                        <h3 className='font-medium text-lg mb-4'>Current Search</h3>
                         <div className='mb-4 text-gray-600'>
                             {searchFilter.title && (
-                                <span className='inline-flex item-coneter grap-2.5 bg-blue-50 border-blue-200 px-4 py-1.5 rounded'>
+                                <span className='inline-flex items-center gap-2.5 bg-blue-50 border border-blue-200 px-4 py-1.5 rounded'>
                                     {searchFilter.title}
                                     <img onClick={ ()=>setSearchFilter(prev=>({...prev,title:""}))} className="cursor-pointer" src={assets.cross_icon} alt="" />
                                 </span>
                             )}
                             {searchFilter.location && (
-                                <span className='ml-2 inline-flex item-coneter grap-2.5 bg-red-50 border-red-200 px-4 py-1.5 rounded'>
-                                    {searchFilter.title}
+                                <span className='ml-2 inline-flex items-center gap-2.5 bg-red-50 border border-red-200 px-4 py-1.5 rounded'>
+                                    {searchFilter.location}
                                     <img onClick={ ()=>setSearchFilter(prev=>({...prev,location:""})) } className="cursor-pointer" src={assets.cross_icon} alt="" />
                                 </span>
                             )}
@@ -35,14 +40,17 @@ const JobListing =()=>{
                     )
 
                 }
+                <button onClick={()=>setShowFilter(prev=>!prev)} className='px-6 py-1.5 rounded border border-gray-400 lg:hidden'>
+                    {showFilter? "close" : "Filters"}
+                </button>
                 {/*category filter*/}
-                <div className='max-lg:hidden'>
-                    <h4 className='font-mdeium text-lg py-4'>Search by Categories</h4>
+                <div className={showFilter ? "":"mx-lg:hidden"}>
+                    <h4 className='font-medium text-lg py-4'>Search by Categories</h4>
                     <ul className='space-y-4 text-gray-600'>
                         {
                             JobCategories.map((category, index)=>(
                                 <li className='flex gap-3 items-center 'key={index}>
-                                    <input clasName='scale-125' type="checkbox" name="" id=""/>
+                                    <input className='scale-125' type="checkbox" name="" id=""/>
                                     {category}
                                 </li>
                             ))
@@ -50,14 +58,14 @@ const JobListing =()=>{
                     </ul>
                 </div>
 
-                {/* location filtyer*/}
+                {/* location filter*/}
                 <div className='max-lg:hidden'>
-                    <h4 className='font-mdeium text-lg py-4 pt-14'>Search by Location</h4>
+                    <h4 className='font-medium text-lg py-4 pt-14'>Search by Location</h4>
                     <ul className='space-y-4 text-gray-600'>
                         {
                             JobLocations.map((location, index)=>(
                                 <li className='flex gap-3 items-center 'key={index}>
-                                    <input clasName='scale-125' type="checkbox" name="" id=""/>
+                                    <input className='scale-125' type="checkbox" name="" id=""/>
                                     {location}
                                 </li>
                             ))
@@ -70,11 +78,39 @@ const JobListing =()=>{
             <section className='w-full lg:w-3/4 text-gray-800 max-lg:px-4'>
                 <h3 className='font-medium text-3xl py-2' id='job-list'>Latest jobs</h3>
                 <p className='mb-8'>Get your desired job from top companies</p>
-                <div className='grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 grap-4'>
-                    {jobsData.map((job, index)=>(
+                <div className='grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4'>
+                    {displayJobs.map((job, index)=>(
                         <JobCard key={index} job={job}/>
                     ))}
                 </div>
+                {/*Pagination*/}
+                {jobs.length > 0 && (
+                    <div className='flex items-center justify-center space-x-2 mt-8'>
+                        <button
+                            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                            disabled={currentPage === 1}
+                            className='p-2 disabled:opacity-50'
+                        >
+                            <img src={assets.left_arrow_icon} alt="Previous" />
+                        </button>
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                            <button
+                                key={page}
+                                onClick={() => setCurrentPage(page)}
+                                className={`px-3 py-1 rounded ${currentPage === page ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                            >
+                                {page}
+                            </button>
+                        ))}
+                        <button
+                            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                            disabled={currentPage === totalPages}
+                            className='p-2 disabled:opacity-50'
+                        >
+                            <img src={assets.right_arrow_icon} alt="Next" />
+                        </button>
+                    </div>
+                )}
             </section>
         </div>
     )
